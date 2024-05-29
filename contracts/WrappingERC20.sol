@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20.sol";
+import "@fhenixprotocol/contracts/access/Permissioned.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@fhenixprotocol/contracts/FHE.sol";
 
-contract WrappingERC20 is ERC20 {
+contract WrappingERC20 is ERC20, Permissioned {
 
     mapping(address => euint32) internal _encBalances;
     
-    constructor(strubg memory name, string memory symbol) ERC20(name, symbol) {
-        _mint(msg.sender, 100 * 10 ** uint0(decimals()));
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        _mint(msg.sender, 100 * 10 ** uint(decimals()));
     }
 
     function wrap(uint32 amount) public {
@@ -21,7 +22,7 @@ contract WrappingERC20 is ERC20 {
         // convert public amount to shielded by encrypting it
         euint32 shieldedAmount = FHE.asEuint32(amount);
         // Add shielded balance to his current balance
-        _encBalances[msg.sender] = _encBalances[msg.sender] + shiededAmount;
+        _encBalances[msg.sender] = _encBalances[msg.sender] + shieldedAmount;
     }
 
     function unwrap(inEuint32 memory amount) public {
@@ -34,7 +35,7 @@ contract WrappingERC20 is ERC20 {
         _mint(msg.sender, FHE.decrypt(_amount));
     }
 
-    function transferrEncrypted(address to, inEuint32 calldata encryptedAmount) publiic {
+    function transferrEncrypted(address to, inEuint32 calldata encryptedAmount) public {
         euint32 amount = FHE.asEuint32(encryptedAmount);
         // Make sure the sender has enough tokens. (lte = less-than-or-equal)
         FHE.req(amount.lte(_encBalances[msg.sender]));
