@@ -26,29 +26,11 @@ describe('DelegateCall', function() {
         this.signers.admin = signers[0];
     })
 
-    it('should delegate call', async function() {
-        const B = await hre.ethers.getContractFactory("B");
-        const b = await B.deploy();
+    it('should trigger console log', async function() {
+        const Counter = await hre.ethers.getContractFactory("Counter");
+        const c = await Counter.deploy();
 
-        const badress= await b.getAddress();
-        console.log("B Address", badress);
-
-        const A = await hre.ethers.getContractFactory("A");
-        const a = await A.deploy();
-
-        const aadress= await a.getAddress();
-        console.log("A Address", aadress);
-
-        // delegate call
-        const AContract = await hre.ethers.getContractAt("A", aadress);
-        const tx = await AContract.setVars(badress, 123);
-        const rc = await tx.wait(); // wait tx to complete
-        console.log(rc?.status)
-
-        const numA = await AContract.num();
-        console.log(numA);
-
-        expect(numA).to.be.equal(123);
+        await c.getCounter();
     })
 
 });

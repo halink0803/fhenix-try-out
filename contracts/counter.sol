@@ -4,6 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import "@fhenixprotocol/contracts/FHE.sol";
 import {Permissioned, Permission} from "@fhenixprotocol/contracts/access/Permissioned.sol";
+import { Console } from "@fhenixprotocol/contracts/utils/debug/Console.sol";
 
 contract Counter is Permissioned {
   euint32 private counter;
@@ -15,11 +16,13 @@ contract Counter is Permissioned {
 
   function add(inEuint32 calldata encryptedValue) public {
     euint32 value = FHE.asEuint32(encryptedValue);
-    counter = counter + value;
+    counter = counter + value; 
   }
 
   function getCounter() public view returns (uint256) {
-    return FHE.decrypt(counter);
+    uint256 decrypted = FHE.decrypt(counter);
+    Console.log(decrypted);
+    return decrypted;
   }
 
   function getCounterPermit(
@@ -30,7 +33,7 @@ contract Counter is Permissioned {
 
   function getCounterPermitSealed(
     Permission memory permission
-  ) public view onlySender(permission) returns (bytes memory) {
+  ) public view onlySender(permission) returns (string memory) {
     return FHE.sealoutput(counter, permission.publicKey);
   }
 }
