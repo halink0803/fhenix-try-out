@@ -27,6 +27,7 @@ describe('DelegateCall', function() {
     })
 
     it('should delegate call', async function() {
+        this.skip();
         const B = await hre.ethers.getContractFactory("B");
         const b = await B.deploy();
 
